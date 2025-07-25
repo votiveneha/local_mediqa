@@ -1,0 +1,85 @@
+<form id="ahpra-registration-form">
+  <label for="registrationStatus">What is your current AHPRA registration status?</label>
+  <select id="registrationStatus" name="registrationStatus" required onchange="toggleAhpraFields()">
+    <option value="">-- Select --</option>
+    <option value="RN">Registered Nurse (RN)</option>
+    <option value="RM">Registered Midwife (RM)</option>
+    <option value="RN_RM">Registered Nurse and Midwife (RN/RM)</option>
+    <option value="NP">Nurse Practitioner (NP) (as endorsed under RN)</option>
+    <option value="Graduate_Nurse">Graduate Nurse – Transitional Authorisation</option>
+    <option value="Graduate_Midwife">Graduate Midwife – Transitional Authorisation</option>
+    <option value="Student_Nurse">Student Nurse – AHPRA-registered (NMBA-approved course)</option>
+    <option value="Student_Midwife">Student Midwife – AHPRA-registered (NMBA-approved course)</option>
+    <option value="Overseas">Overseas-Qualified Nurses and Midwives not currently registered with AHPRA</option>
+    <option value="Not_Registered">Not currently registered with AHPRA</option>
+  </select>
+
+  <div id="ahpra-fields" style="display: none; margin-top: 20px;">
+    <label for="ahpraNumber">Please enter your AHPRA Registration Number:</label>
+    <input type="text" id="ahpraNumber" name="ahpraNumber" pattern="^NMW\d{10}$" required placeholder="e.g. NMW0001234567" />
+
+    <div style="margin-top: 10px;">
+      <input type="checkbox" id="consent" name="consent" required />
+      <label for="consent">I consent to Mediqa verifying my AHPRA registration via the public AHPRA register.</label>
+    </div>
+
+    <button type="button" id="lookupBtn" onclick="lookupAhpra()" style="margin-top: 10px;">🔍 Lookup AHPRA Registration</button>
+
+    <div id="ahpra-result" style="display: none; margin-top: 20px; border: 1px solid #ccc; padding: 15px; border-radius: 8px;">
+      <h4>AHPRA Registration Details</h4>
+      <p><strong>Division:</strong> <span id="division"></span></p>
+      <p><strong>Endorsements:</strong> <span id="endorsements"></span></p>
+      <p><strong>Registration Type:</strong> <span id="registrationType"></span></p>
+      <p><strong>Registration Status:</strong> <span id="registrationStatusField"></span></p>
+      <p><strong>Notations:</strong> <span id="notations"></span></p>
+      <p><strong>Conditions:</strong> <span id="conditions"></span></p>
+      <p><strong>Expiry:</strong> <span id="expiry"></span></p>
+      <p><strong>Principal Place of Practice:</strong> <span id="principalPlace"></span></p>
+      <p><strong>Other Places of Practice:</strong> <span id="otherPlaces"></span></p>
+
+      <p style="margin-top: 15px; font-style: italic; font-size: 0.9em;">Data retrieved from AHPRA’s public register.</p>
+    </div>
+  </div>
+</form>
+<script>
+function toggleAhpraFields() {
+  const status = document.getElementById('registrationStatus').value;
+  const ahpraFields = document.getElementById('ahpra-fields');
+  const show = ['RN', 'RM', 'RN_RM', 'NP'].includes(status);
+  ahpraFields.style.display = show ? 'block' : 'none';
+}
+</script>
+<script>
+function lookupAhpra() {
+  const ahpraNumber = document.getElementById('ahpraNumber').value;
+  const consent = document.getElementById('consent').checked;
+
+  if (!consent) {
+    alert("You must consent to verification.");
+    return;
+  }
+
+  fetch('/lookup-ahpra', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ahpraNumber })
+  })
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById('division').innerText = data.division || '';
+    document.getElementById('endorsements').innerText = data.endorsements || '';
+    document.getElementById('registrationType').innerText = data.registration_type || '';
+    document.getElementById('registrationStatusField').innerText = data.registration_status || '';
+    document.getElementById('notations').innerText = data.notations || '';
+    document.getElementById('conditions').innerText = data.conditions || '';
+    document.getElementById('expiry').innerText = data.expiry || '';
+    document.getElementById('principalPlace').innerText = data.principal_place || '';
+    document.getElementById('otherPlaces').innerText = data.other_places || '';
+    document.getElementById('ahpra-result').style.display = 'block';
+  })
+  .catch(err => {
+    alert("Lookup failed. Please try again.");
+    console.error(err);
+  });
+}
+</script>

@@ -1,0 +1,15 @@
+<input type="checkbox" name="correct_answer_check[]" class="check check-1" value="incorrect"> Correct Answer<br>
+<input type="checkbox" name="correct_answer_check[]" class="check check-2" value="incorrect"> Correct Answer<br>
+<input type="checkbox" name="correct_answer_check[]" class="check check-3" value="incorrect"> Correct Answer<br>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script>
+    var i = 1;
+    $(".check").each(function(){
+        $(".check"+i).click(function(){
+            $(this).val("correct");
+          });
+          i++;
+    });
+	
+</script>
+				

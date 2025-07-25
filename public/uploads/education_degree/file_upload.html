@@ -1,0 +1,56 @@
+<div class="file-upload-box">
+    <input type="file" id="vaccinationFiles" name="vaccinationFiles[]" multiple hidden>
+    <button type="button" id="uploadBtn">Choose Files</button>
+    <span id="fileCountLabel">No files chosen</span>
+  
+    <div id="filePreviewList"></div>
+  </div>
+  
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<!-- 👇 jQuery Logic to Handle File Count and Removal -->
+<script>
+    let selectedVaccinationFiles = [];
+  
+    $('#uploadBtn').on('click', function () {
+      $('#vaccinationFiles').click();
+    });
+  
+    $('#vaccinationFiles').on('change', function () {
+      const newFiles = Array.from(this.files);
+  
+      // Avoid duplicates
+      newFiles.forEach(file => {
+        if (!selectedVaccinationFiles.some(f => f.name === file.name && f.lastModified === file.lastModified)) {
+          selectedVaccinationFiles.push(file);
+        }
+      });
+  
+      this.value = ''; // allow same file to be selected again
+      updateVaccinationFileDisplay();
+    });
+  
+    function updateVaccinationFileDisplay() {
+      $('#filePreviewList').empty();
+  
+      selectedVaccinationFiles.forEach((file, index) => {
+        $('#filePreviewList').append(`
+          <div>
+            📄 ${file.name}
+            <button type="button" onclick="removeVaccinationFile(${index})">×</button>
+          </div>
+        `);
+      });
+  
+      // Update label
+      const count = selectedVaccinationFiles.length;
+      $('#fileCountLabel').text(`${count} file${count !== 1 ? 's' : ''}`);
+    }
+  
+    function removeVaccinationFile(index) {
+      selectedVaccinationFiles.splice(index, 1);
+      updateVaccinationFileDisplay();
+    }
+  </script>
+  
+
